@@ -1,7 +1,30 @@
-import { Component, AfterViewInit, HostListener, ViewChild } from '@angular/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { SvgPath, SvgItem, Point, SvgPoint, SvgControlPoint, formatNumber } from '../lib/svg';
-import type { SvgCommandType, SvgCommandTypeAny } from '../lib/svg-command-types';
+import {
+  Component,
+  AfterViewInit,
+  HostListener,
+  ViewChild,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+} from '@angular/animations';
+import {
+  SvgPath,
+  SvgItem,
+  Point,
+  SvgPoint,
+  SvgControlPoint,
+  formatNumber,
+} from '../lib/svg';
+import type {
+  SvgCommandType,
+  SvgCommandTypeAny,
+} from '../lib/svg-command-types';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { StorageService } from './storage.service';
@@ -12,29 +35,38 @@ import { ConfigService } from './config.service';
 import { browserComputePathBoundingBox } from './svg-bbox';
 import { reversePath } from '../lib/reverse-path';
 import { optimizePath } from '../lib/optimize-path';
-import { changePathOrigin } from 'src/lib/change-path-origin';
+import { changePathOrigin } from '../lib/change-path-origin';
 import { KEYBOARD } from './constants/keyboard.const';
 
-export const kDefaultPath = `M 4 8 L 10 1 L 13 0 L 12 3 L 5 9 C 6 10 6 11 7 10 C 7 11 8 12 7 12 A 1.42 1.42 0 0 1 6 13 `
-+ `A 5 5 0 0 0 4 10 Q 3.5 9.9 3.5 10.5 T 2 11.8 T 1.2 11 T 2.5 9.5 T 3 9 A 5 5 90 0 0 0 7 A 1.42 1.42 0 0 1 1 6 `
-+ `C 1 5 2 6 3 6 C 2 7 3 7 4 8 M 10 1 L 10 3 L 12 3 L 10.2 2.8 L 10 1`;
+export const kDefaultPath =
+  `M 4 8 L 10 1 L 13 0 L 12 3 L 5 9 C 6 10 6 11 7 10 C 7 11 8 12 7 12 A 1.42 1.42 0 0 1 6 13 ` +
+  `A 5 5 0 0 0 4 10 Q 3.5 9.9 3.5 10.5 T 2 11.8 T 1.2 11 T 2.5 9.5 T 3 9 A 5 5 90 0 0 0 7 A 1.42 1.42 0 0 1 1 6 ` +
+  `C 1 5 2 6 3 6 C 2 7 3 7 4 8 M 10 1 L 10 3 L 12 3 L 10.2 2.8 L 10 1`;
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   animations: [
-    trigger('leftColumnParent', [
-      transition(':enter', [])
-    ]),
+    trigger('leftColumnParent', [transition(':enter', [])]),
     trigger('leftColumn', [
-      state('*', style({'max-width': '310px'})),
-      transition(':enter', [style({'max-width': '0'}), animate('100ms ease')]),
-      transition(':leave', [animate('100ms ease', style({'max-width': '0'}))])
-    ])
-  ]
+      state('*', style({ 'max-width': '310px' })),
+      transition(':enter', [
+        style({ 'max-width': '0' }),
+        animate('100ms ease'),
+      ]),
+      transition(':leave', [
+        animate('100ms ease', style({ 'max-width': '0' })),
+      ]),
+    ]),
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class AppComponent implements AfterViewInit {
+  cfg = inject(ConfigService);
+  private storage = inject(StorageService);
+
   // SvgPath path data model:
   parsedPath: SvgPath;
   targetPoints: SvgPoint[] = [];
@@ -73,8 +105,8 @@ export class AppComponent implements AfterViewInit {
   wasCanvasDragged = false;
   draggedIsNew = false;
   dragging = false;
-	cursorPosition?: Point & {decimals?: number};
-	hoverPosition?: Point;
+  cursorPosition?: Point & { decimals?: number };
+  hoverPosition?: Point;
 
   // Images
   images: Image[] = [];
@@ -90,54 +122,92 @@ export class AppComponent implements AfterViewInit {
   trackByIndex = (idx: number, _: unknown) => idx;
   formatNumber = (v: number) => formatNumber(v, 4);
 
-  constructor(
-    matRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer,
-    public cfg: ConfigService,
-    private storage: StorageService
-  ) {
-    for (const icon of ['delete', 'logo', 'more', 'github', 'zoom_in', 'zoom_out', 'zoom_fit', 'sponsor']) {
-      matRegistry.addSvgIcon(icon, sanitizer.bypassSecurityTrustResourceUrl(`./assets/${icon}.svg`));
+  constructor() {
+    const matRegistry = inject(MatIconRegistry);
+    const sanitizer = inject(DomSanitizer);
+
+    for (const icon of [
+      'delete',
+      'logo',
+      'more',
+      'github',
+      'zoom_in',
+      'zoom_out',
+      'zoom_fit',
+      'sponsor',
+    ]) {
+      matRegistry.addSvgIcon(
+        icon,
+        sanitizer.bypassSecurityTrustResourceUrl(`./assets/${icon}.svg`),
+      );
     }
     this.parsedPath = new SvgPath('');
     this.reloadPath(this.rawPath, true);
   }
 
-  @HostListener('document:keydown', ['$event']) onKeyDown($event: KeyboardEvent) {
+  @HostListener('document:keydown', ['$event']) onKeyDown(
+    $event: KeyboardEvent,
+  ) {
     const tag = $event.target instanceof Element ? $event.target.tagName : null;
     if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
-      if ($event.shiftKey && ($event.metaKey || $event.ctrlKey) && $event.key.toLowerCase() === KEYBOARD.KEYS.UNDO) {
+      if (
+        $event.shiftKey &&
+        ($event.metaKey || $event.ctrlKey) &&
+        $event.key.toLowerCase() === KEYBOARD.KEYS.UNDO
+      ) {
         this.redo();
         $event.preventDefault();
-      } else if (($event.metaKey || $event.ctrlKey) && $event.key.toLowerCase() === KEYBOARD.KEYS.UNDO) {
+      } else if (
+        ($event.metaKey || $event.ctrlKey) &&
+        $event.key.toLowerCase() === KEYBOARD.KEYS.UNDO
+      ) {
         this.undo();
         $event.preventDefault();
-      } else if (!$event.metaKey && !$event.ctrlKey && KEYBOARD.PATTERNS.SVG_COMMAND.test($event.key)) {
+      } else if (
+        !$event.metaKey &&
+        !$event.ctrlKey &&
+        KEYBOARD.PATTERNS.SVG_COMMAND.test($event.key)
+      ) {
         const isLower = $event.key === $event.key.toLowerCase();
         const key = $event.key.toUpperCase() as SvgCommandType;
         if (isLower) {
           // Item insertion
-          const lastItem = this.parsedPath.path.length ?  this.parsedPath.path[this.parsedPath.path.length - 1] : null;
+          const lastItem = this.parsedPath.path.length
+            ? this.parsedPath.path[this.parsedPath.path.length - 1]
+            : null;
           const prevItem = this.focusedItem || lastItem;
-          if(this.canInsertAfter(prevItem, key)) {
+          if (this.canInsertAfter(prevItem, key)) {
             this.insert(key, prevItem, false);
             $event.preventDefault();
           }
-        } else if (!isLower && this.focusedItem && this.canConvert(this.focusedItem, key)) {
+        } else if (
+          !isLower &&
+          this.focusedItem &&
+          this.canConvert(this.focusedItem, key)
+        ) {
           // Item conversion
           this.insert(key, this.focusedItem, true);
           $event.preventDefault();
         }
-      } else if (!$event.metaKey && !$event.ctrlKey && $event.key === KEYBOARD.KEYS.ESCAPE) {
+      } else if (
+        !$event.metaKey &&
+        !$event.ctrlKey &&
+        $event.key === KEYBOARD.KEYS.ESCAPE
+      ) {
         if (this.dragging) {
           // If an element is being dragged, undo by reloading the current history entry
           this.reloadPath(this.history[this.historyCursor]);
-        } else if(this.canvas){
+        } else if (this.canvas) {
           // stopDrag will unselect selected item if any
           this.canvas.stopDrag();
         }
         $event.preventDefault();
-      } else if (!$event.metaKey && !$event.ctrlKey && ($event.key === KEYBOARD.KEYS.DELETE || $event.key === KEYBOARD.KEYS.BACKSPACE)) {
+      } else if (
+        !$event.metaKey &&
+        !$event.ctrlKey &&
+        ($event.key === KEYBOARD.KEYS.DELETE ||
+          $event.key === KEYBOARD.KEYS.BACKSPACE)
+      ) {
         if (this.focusedItem && this.canDelete(this.focusedItem)) {
           this.delete(this.focusedItem);
           $event.preventDefault();
@@ -150,8 +220,8 @@ export class AppComponent implements AfterViewInit {
     }
   }
   get decimals() {
-    return  this.cfg.snapToGrid ? 0 : this.cfg.decimalPrecision;
- }
+    return this.cfg.snapToGrid ? 0 : this.cfg.decimalPrecision;
+  }
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -163,8 +233,8 @@ export class AppComponent implements AfterViewInit {
     return this._rawPath;
   }
   set rawPath(value: string) {
-      this._rawPath = value;
-      this.pushHistory();
+    this._rawPath = value;
+    this.pushHistory();
   }
 
   setIsDragging(dragging: boolean) {
@@ -175,13 +245,13 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
-	setCursorPosition(position?: Point & {decimals?: number}) {
-		this.cursorPosition = position;
-	}
+  setCursorPosition(position?: Point & { decimals?: number }) {
+    this.cursorPosition = position;
+  }
 
-	setHoverPosition(position?: Point) {
-		this.hoverPosition = position;
-	}
+  setHoverPosition(position?: Point) {
+    this.hoverPosition = position;
+  }
 
   setHistoryDisabled(value: boolean) {
     this.historyDisabled = value;
@@ -191,9 +261,16 @@ export class AppComponent implements AfterViewInit {
   }
 
   pushHistory() {
-    if (!this.historyDisabled && this.rawPath !== this.history[this.historyCursor]) {
-      this.historyCursor ++;
-      this.history.splice(this.historyCursor, this.history.length - this.historyCursor, this.rawPath);
+    if (
+      !this.historyDisabled &&
+      this.rawPath !== this.history[this.historyCursor]
+    ) {
+      this.historyCursor++;
+      this.history.splice(
+        this.historyCursor,
+        this.history.length - this.historyCursor,
+        this.rawPath,
+      );
       this.storage.addPath(null, this.rawPath);
     }
   }
@@ -205,34 +282,42 @@ export class AppComponent implements AfterViewInit {
   undo() {
     if (this.canUndo()) {
       this.historyDisabled = true;
-      this.historyCursor --;
+      this.historyCursor--;
       this.reloadPath(this.history[this.historyCursor]);
       this.historyDisabled = false;
     }
   }
 
   canRedo(): boolean {
-    return this.historyCursor < this.history.length - 1 && !this.isEditingImages;
+    return (
+      this.historyCursor < this.history.length - 1 && !this.isEditingImages
+    );
   }
 
   redo() {
     if (this.canRedo()) {
       this.historyDisabled = true;
-      this.historyCursor ++;
+      this.historyCursor++;
       this.reloadPath(this.history[this.historyCursor]);
       this.historyDisabled = false;
     }
   }
 
-  updateViewPort(x: number, y: number, w: number | null, h: number | null, force = false) {
+  updateViewPort(
+    x: number,
+    y: number,
+    w: number | null,
+    h: number | null,
+    force = false,
+  ) {
     if (!force && this.cfg.viewPortLocked) {
       return;
     }
-    if (w === null && h !==null) {
-      w = this.canvasWidth * h / this.canvasHeight;
+    if (w === null && h !== null) {
+      w = (this.canvasWidth * h) / this.canvasHeight;
     }
-    if (h === null && w !==null) {
-      h = this.canvasHeight * w / this.canvasWidth;
+    if (h === null && w !== null) {
+      h = (this.canvasHeight * w) / this.canvasWidth;
     }
     if (!w || !h) {
       return;
@@ -247,9 +332,11 @@ export class AppComponent implements AfterViewInit {
 
   insert(type: SvgCommandTypeAny, after: SvgItem | null, convert: boolean) {
     if (convert) {
-      if(after) {
-        this.focusedItem =
-          this.parsedPath.changeType(after, (after.relative ? type.toLowerCase() as SvgCommandTypeAny : type));
+      if (after) {
+        this.focusedItem = this.parsedPath.changeType(
+          after,
+          after.relative ? (type.toLowerCase() as SvgCommandTypeAny) : type,
+        );
         this.afterModelChange();
       }
     } else {
@@ -270,32 +357,41 @@ export class AppComponent implements AfterViewInit {
 
       if (type.toLowerCase() !== 'm' || !newItem) {
         const relative = type.toLowerCase() === type;
-        const X = (relative ?  0 : point1.x).toString();
-        const Y = (relative ?  0 : point1.y).toString();
+        const X = (relative ? 0 : point1.x).toString();
+        const Y = (relative ? 0 : point1.y).toString();
         switch (type.toLocaleLowerCase()) {
-          case 'm': case 'l': case 't':
-            newItem = SvgItem.Make([type, X, Y]) ; break;
+          case 'm':
+          case 'l':
+          case 't':
+            newItem = SvgItem.Make([type, X, Y]);
+            break;
           case 'h':
-            newItem = SvgItem.Make([type, X]) ; break;
+            newItem = SvgItem.Make([type, X]);
+            break;
           case 'v':
-            newItem = SvgItem.Make([type, Y]) ; break;
-          case 's': case 'q':
-            newItem = SvgItem.Make([type, X , Y, X, Y]) ; break;
+            newItem = SvgItem.Make([type, Y]);
+            break;
+          case 's':
+          case 'q':
+            newItem = SvgItem.Make([type, X, Y, X, Y]);
+            break;
           case 'c':
-            newItem = SvgItem.Make([type, X , Y, X, Y, X, Y]) ; break;
+            newItem = SvgItem.Make([type, X, Y, X, Y, X, Y]);
+            break;
           case 'a':
-            newItem = SvgItem.Make([type, '1' , '1', '0', '0', '0', X, Y]) ; break;
+            newItem = SvgItem.Make([type, '1', '1', '0', '0', '0', X, Y]);
+            break;
           case 'z':
             newItem = SvgItem.Make([type]);
         }
-        if(newItem) {
+        if (newItem) {
           this.parsedPath.insert(newItem, after ?? undefined);
         }
       }
       this.setHistoryDisabled(true);
       this.afterModelChange();
 
-      if(newItem) {
+      if (newItem) {
         this.focusedItem = newItem;
         this.draggedPoint = newItem.targetLocation();
       }
@@ -317,12 +413,7 @@ export class AppComponent implements AfterViewInit {
       h = k * w;
     }
 
-    this.updateViewPort(
-      bbox.x - 1,
-      bbox.y - 1,
-      w,
-      h
-    );
+    this.updateViewPort(bbox.x - 1, bbox.y - 1, w, h);
   }
 
   scale(x: number, y: number) {
@@ -360,9 +451,9 @@ export class AppComponent implements AfterViewInit {
       useHorizontalAndVerticalLines: true,
       useRelativeAbsolute: true,
       useReverse: true,
-      useShorthands: true
+      useShorthands: true,
     });
-    this.cfg.minifyOutput=true;
+    this.cfg.minifyOutput = true;
     this.afterModelChange();
   }
 
@@ -397,7 +488,10 @@ export class AppComponent implements AfterViewInit {
   afterModelChange() {
     this.reloadPoints();
     this.rawPath = this.parsedPath.asString(4, this.cfg.minifyOutput);
-    if(this.focusedItem && this.parsedPath.path.indexOf(this.focusedItem) === -1) {
+    if (
+      this.focusedItem &&
+      this.parsedPath.path.indexOf(this.focusedItem) === -1
+    ) {
       this.focusedItem = null;
     }
   }
@@ -415,7 +509,9 @@ export class AppComponent implements AfterViewInit {
     if (item !== null) {
       previousType = item.getType().toUpperCase() as SvgCommandType;
     } else if (this.parsedPath.path.length > 0) {
-      previousType = this.parsedPath.path[this.parsedPath.path.length - 1].getType().toUpperCase() as SvgCommandType;
+      previousType = this.parsedPath.path[this.parsedPath.path.length - 1]
+        .getType()
+        .toUpperCase() as SvgCommandType;
     }
     if (!previousType) {
       return type !== 'Z';
@@ -426,16 +522,16 @@ export class AppComponent implements AfterViewInit {
     if (previousType === 'Z') {
       return type !== 'Z' && type !== 'T' && type !== 'S';
     }
-    if (previousType === 'C' || previousType === 'S' ) {
+    if (previousType === 'C' || previousType === 'S') {
       return type !== 'T';
     }
-    if (previousType === 'Q' || previousType === 'T' ) {
+    if (previousType === 'Q' || previousType === 'T') {
       return type !== 'S';
     }
     return type !== 'T' && type !== 'S';
   }
   canConvert(item: SvgItem, to: SvgCommandType): boolean {
-    const idx = this.parsedPath.path.indexOf(item) ;
+    const idx = this.parsedPath.path.indexOf(item);
     if (idx === 0) {
       return false;
     }
@@ -445,16 +541,18 @@ export class AppComponent implements AfterViewInit {
     return false;
   }
   canUseAsOrigin(item: SvgItem): boolean {
-    return item.getType().toUpperCase() !== 'Z'
-      && this.parsedPath.path.indexOf(item) > 1;
+    return (
+      item.getType().toUpperCase() !== 'Z' &&
+      this.parsedPath.path.indexOf(item) > 1
+    );
   }
 
   hasSubPaths(): boolean {
     let moveCount = 0;
-    for(const command of this.parsedPath.path) {
-      if(command.getType(true) === 'M') {
-        moveCount ++;
-        if(moveCount == 2) {
+    for (const command of this.parsedPath.path) {
+      if (command.getType(true) === 'M') {
+        moveCount++;
+        if (moveCount == 2) {
           return true;
         }
       }
@@ -464,26 +562,42 @@ export class AppComponent implements AfterViewInit {
 
   getTooltip(item: SvgItem, idx: number): string {
     const labels: Record<SvgCommandTypeAny, string[]> = {
-      'M': ['x', 'y'],
-      'm': ['dx', 'dy'],
-      'L': ['x', 'y'],
-      'l': ['dx', 'dy'],
-      'V': ['y'],
-      'v': ['dy'],
-      'H': ['x'],
-      'h': ['dx'],
-      'C': ['x1', 'y1', 'x2', 'y2', 'x', 'y'],
-      'c': ['dx1', 'dy1', 'dx2', 'dy2', 'dx', 'dy'],
-      'S': ['x2', 'y2', 'x', 'y'],
-      's': ['dx2', 'dy2', 'dx', 'dy'],
-      'Q': ['x1', 'y1', 'x', 'y'],
-      'q': ['dx1', 'dy1', 'dx', 'dy'],
-      'T': ['x', 'y'],
-      't': ['dx', 'dy'],
-      'A': ['rx', 'ry', 'x-axis-rotation', 'large-arc-flag', 'sweep-flag', 'x', 'y'],
-      'a': ['rx', 'ry', 'x-axis-rotation', 'large-arc-flag', 'sweep-flag', 'dx', 'dy'],
-      'Z': [],
-      'z': []
+      M: ['x', 'y'],
+      m: ['dx', 'dy'],
+      L: ['x', 'y'],
+      l: ['dx', 'dy'],
+      V: ['y'],
+      v: ['dy'],
+      H: ['x'],
+      h: ['dx'],
+      C: ['x1', 'y1', 'x2', 'y2', 'x', 'y'],
+      c: ['dx1', 'dy1', 'dx2', 'dy2', 'dx', 'dy'],
+      S: ['x2', 'y2', 'x', 'y'],
+      s: ['dx2', 'dy2', 'dx', 'dy'],
+      Q: ['x1', 'y1', 'x', 'y'],
+      q: ['dx1', 'dy1', 'dx', 'dy'],
+      T: ['x', 'y'],
+      t: ['dx', 'dy'],
+      A: [
+        'rx',
+        'ry',
+        'x-axis-rotation',
+        'large-arc-flag',
+        'sweep-flag',
+        'x',
+        'y',
+      ],
+      a: [
+        'rx',
+        'ry',
+        'x-axis-rotation',
+        'large-arc-flag',
+        'sweep-flag',
+        'dx',
+        'dy',
+      ],
+      Z: [],
+      z: [],
     };
     const commandType = item.getType() as SvgCommandTypeAny;
     return labels[commandType][idx];
@@ -507,7 +621,7 @@ export class AppComponent implements AfterViewInit {
       if (autozoom) {
         this.zoomAuto();
       }
-    } catch (e) {
+    } catch {
       this.invalidSyntax = true;
       if (!this.parsedPath) {
         this.parsedPath = new SvgPath('');
@@ -535,7 +649,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   cancelAddImage(): void {
-    if(this.images.length === 0) {
+    if (this.images.length === 0) {
       this.isEditingImages = false;
       this.focusedImage = null;
     }
@@ -551,13 +665,13 @@ export class AppComponent implements AfterViewInit {
   }
 
   focusItem(it: SvgItem | null): void {
-    if(it !== this.focusedItem) {
+    if (it !== this.focusedItem) {
       this.focusedItem = it;
-      if(this.focusedItem) {
+      if (this.focusedItem) {
         const idx = this.parsedPath.path.indexOf(this.focusedItem);
         document.getElementById(`svg_command_row_${idx}`)?.scrollIntoView({
           behavior: 'smooth',
-          block: 'nearest'
+          block: 'nearest',
         });
       }
     }

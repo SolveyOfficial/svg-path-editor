@@ -1,14 +1,25 @@
-import { Component, Output, EventEmitter } from '@angular/core';
-import { MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {
+  Component,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Image } from '../image';
 
 @Component({
   selector: 'app-upload-image-dialog',
   templateUrl: 'upload-image-dialog.component.html',
-  styleUrls: ['./upload-image-dialog.component.scss']
+  styleUrls: ['./upload-image-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class UploadImageDialogComponent {
+  dialogRef = inject<MatDialogRef<UploadImageDialogComponent>>(MatDialogRef);
+  domSanitizer = inject(DomSanitizer);
+
   data: string | null = null;
   displayableData: SafeResourceUrl | null = null;
   name = '';
@@ -17,19 +28,14 @@ export class UploadImageDialogComponent {
   width = '20';
   height = '20';
   preserveAspectRatio = true;
-
-  constructor(
-    public dialogRef: MatDialogRef<UploadImageDialogComponent>,
-    public domSanitizer: DomSanitizer
-  ) {
-  }
   private importFile(file: File) {
     if (window.FileReader !== undefined) {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         this.data = e.target?.result?.toString() ?? null;
-        if(this.data) {
-          this.displayableData = this.domSanitizer.bypassSecurityTrustResourceUrl(this.data);
+        if (this.data) {
+          this.displayableData =
+            this.domSanitizer.bypassSecurityTrustResourceUrl(this.data);
         }
       };
       this.name = file.name;
@@ -49,12 +55,12 @@ export class UploadImageDialogComponent {
       x2: parseFloat(this.x) + parseFloat(this.width),
       y2: parseFloat(this.y) + parseFloat(this.height),
       preserveAspectRatio: this.preserveAspectRatio,
-      opacity:1.0
+      opacity: 1.0,
     });
   }
   onFileSelected(uploadInput: HTMLInputElement) {
-    if (typeof (FileReader) !== 'undefined') {
-      if(uploadInput.files) {
+    if (typeof FileReader !== 'undefined') {
+      if (uploadInput.files) {
         this.importFile(uploadInput.files[0]);
       }
     } else {
@@ -62,7 +68,7 @@ export class UploadImageDialogComponent {
     }
   }
   onDrop(event: DragEvent) {
-    if(event.dataTransfer && event.dataTransfer.files) {
+    if (event.dataTransfer && event.dataTransfer.files) {
       const file = event.dataTransfer.files[0];
       if (/^image\//.test(file.type)) {
         this.importFile(file);
@@ -71,33 +77,33 @@ export class UploadImageDialogComponent {
     event.preventDefault();
   }
   onDragOver(event: DragEvent) {
-      event.stopPropagation();
-      event.preventDefault();
+    event.stopPropagation();
+    event.preventDefault();
   }
 }
 
 @Component({
   selector: 'app-upload-image',
-  templateUrl: './upload-image.component.html'
+  templateUrl: './upload-image.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class UploadImageComponent {
-  @Output() addImage = new EventEmitter<Image>();
-  @Output() cancel = new EventEmitter<void>();
+  dialog = inject(MatDialog);
 
-  constructor(
-    public dialog: MatDialog,
-  ) {}
+  @Output() addImage = new EventEmitter<Image>();
+  @Output() cancelled = new EventEmitter<void>();
 
   openDialog(): void {
     const dialogRef = this.dialog.open(UploadImageDialogComponent, {
       width: '800px',
-      panelClass: 'dialog'
+      panelClass: 'dialog',
     });
-    dialogRef.afterClosed().subscribe((result: Image)  => {
+    dialogRef.afterClosed().subscribe((result: Image) => {
       if (result) {
         this.addImage.emit(result);
       } else {
-        this.cancel.emit();
+        this.cancelled.emit();
       }
     });
   }

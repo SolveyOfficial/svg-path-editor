@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-copied-snackbar',
-  templateUrl: 'copied-snackbar.component.html'
+  templateUrl: 'copied-snackbar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class CopiedSnackbarComponent {
-}
+export class CopiedSnackbarComponent {}

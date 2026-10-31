@@ -1,5 +1,14 @@
-import { Component, Inject, Input } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {
+  Component,
+  Input,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { ExportConfigService } from '../config.service';
 import { StorageService } from '../storage.service';
 import { SvgPath } from '../../lib/svg';
@@ -15,21 +24,23 @@ interface DialogData {
 @Component({
   selector: 'app-export-dialog',
   templateUrl: 'export-dialog.component.html',
-  styleUrls: ['./export-dialog.component.scss']
+  styleUrls: ['./export-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ExportDialogComponent {
+  dialogRef = inject<MatDialogRef<ExportDialogComponent>>(MatDialogRef);
+  storageService = inject(StorageService);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+  cfg = inject(ExportConfigService);
+  private snackBar = inject(MatSnackBar);
+
   x = 0;
   y = 0;
   width = 0;
   height = 0;
 
-  constructor(
-    public dialogRef: MatDialogRef<ExportDialogComponent>,
-    public storageService: StorageService,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    public cfg: ExportConfigService,
-    private snackBar: MatSnackBar
-  ) {
+  constructor() {
     this.refreshViewbox();
   }
 
@@ -44,21 +55,21 @@ export class ExportDialogComponent {
     document.body.removeChild(anchor);
     setTimeout(() => window.URL.revokeObjectURL(anchor.href), 100);
   }
-	
-	copyToClipboard(data: string) {
+
+  copyToClipboard(data: string) {
     navigator.clipboard.writeText(data);
     this.snackBar.openFromComponent(CopiedSnackbarComponent, {
-      horizontalPosition:'center',
+      horizontalPosition: 'center',
       verticalPosition: 'top',
-      duration: 2000
+      duration: 2000,
     });
-	}
+  }
 
-	makeSVG(): string {
-		return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${this.x} ${this.y} ${this.width} ${this.height}">
+  makeSVG(): string {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${this.x} ${this.y} ${this.width} ${this.height}">
 	<path d="${this.data.path}"${this.cfg.stroke ? ` stroke="${this.cfg.strokeColor}" stroke-width="${this.cfg.strokeWidth}"` : ''} fill="${this.cfg.fill ? this.cfg.fillColor : 'none'}"/>
 </svg>`;
-	}
+  }
 
   onCancel(): void {
     this.dialogRef.close();
@@ -69,10 +80,10 @@ export class ExportDialogComponent {
     this.download(this.data.name || 'svg-path.svg', svg);
     this.dialogRef.close();
   }
-	onCopyToClipboard(): void {
-		const svg = this.makeSVG();
-		this.copyToClipboard(svg);
-	}
+  onCopyToClipboard(): void {
+    const svg = this.makeSVG();
+    this.copyToClipboard(svg);
+  }
 
   refreshViewbox() {
     const p = new SvgPath(this.data.path);
@@ -98,26 +109,24 @@ export class ExportDialogComponent {
   }
 }
 
-
-
 @Component({
   selector: 'app-export',
-  templateUrl: './export.component.html'
+  templateUrl: './export.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ExportComponent {
+  dialog = inject(MatDialog);
+
   @Input() path = '';
   @Input() name = '';
-
-  constructor(
-    public dialog: MatDialog
-  ) {}
 
   openDialog(): void {
     this.dialog.open(ExportDialogComponent, {
       width: '800px',
       panelClass: 'dialog',
-      data: {path: this.path, name: this.name},
-      autoFocus: false
+      data: { path: this.path, name: this.name },
+      autoFocus: false,
     });
   }
 }

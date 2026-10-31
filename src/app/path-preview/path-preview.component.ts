@@ -1,9 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { browserComputePathBoundingBox } from '../svg-bbox';
 
 @Component({
   selector: 'app-path-preview',
-  templateUrl: './path-preview.component.html'
+  templateUrl: './path-preview.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class PathPreviewComponent implements OnInit {
   @Input() x?: number;
@@ -17,7 +24,12 @@ export class PathPreviewComponent implements OnInit {
   @Input() path = '';
 
   ngOnInit(): void {
-    if(this.x === undefined || this.y === undefined || this.width === undefined || this.height === undefined) {
+    if (
+      this.x === undefined ||
+      this.y === undefined ||
+      this.width === undefined ||
+      this.height === undefined
+    ) {
       const bbox = browserComputePathBoundingBox(this.path);
       this.x = bbox.x;
       this.y = bbox.y;
@@ -27,7 +39,9 @@ export class PathPreviewComponent implements OnInit {
   }
 
   patternScale(containerWidth: number, containerHeight: number): number {
-    return Math.max((this.width??0) / containerWidth, (this.height??0) / containerHeight);
+    return Math.max(
+      (this.width ?? 0) / containerWidth,
+      (this.height ?? 0) / containerHeight,
+    );
   }
-
 }

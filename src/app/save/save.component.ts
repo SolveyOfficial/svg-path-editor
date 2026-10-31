@@ -1,5 +1,16 @@
-import { Component, Inject, Input, Output, EventEmitter } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { StorageService } from '../storage.service';
 
 export interface DialogData {
@@ -9,14 +20,14 @@ export interface DialogData {
 @Component({
   selector: 'app-save-dialog',
   templateUrl: 'save-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SaveDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<SaveDialogComponent>,
-    public storageService: StorageService,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {
-  }
+  dialogRef = inject<MatDialogRef<SaveDialogComponent>>(MatDialogRef);
+  storageService = inject(StorageService);
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -28,17 +39,17 @@ export class SaveDialogComponent {
 @Component({
   selector: 'app-save',
   templateUrl: './save.component.html',
-  styleUrls: ['./save.component.css']
+  styleUrls: ['./save.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SaveComponent {
+  dialog = inject(MatDialog);
+  storageService = inject(StorageService);
+
   @Input() path = '';
   @Input() name = '';
   @Output() nameChange = new EventEmitter<string>();
-
-  constructor(
-    public dialog: MatDialog,
-    public storageService: StorageService,
-  ) {}
 
   openDialog(): void {
     let name = this.name;
@@ -54,10 +65,10 @@ export class SaveComponent {
     const dialogRef = this.dialog.open(SaveDialogComponent, {
       width: '350px',
       panelClass: 'dialog',
-      data: {name}
+      data: { name },
     });
 
-    dialogRef.afterClosed().subscribe((result: DialogData)  => {
+    dialogRef.afterClosed().subscribe((result: DialogData) => {
       if (result) {
         this.storageService.addPath(result.name, this.path);
         this.name = result.name;

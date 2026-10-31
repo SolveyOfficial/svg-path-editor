@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { getConfigKey } from './constants/storage.const';
 
 function save() {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
   return function(target: Object, propertyKey: string) {
     const localStorageKey = getConfigKey(target.constructor.name, propertyKey);
     const storedValue = localStorage.getItem(localStorageKey);
