@@ -1,8 +1,8 @@
 {
-  "name": "SvgPathEditor",
-  "short_name": "SvgPathEditor",
-  "theme_color": "#111111",
-  "background_color": "#252526",
+  "name": "Solvey SVG Path Editor",
+  "short_name": "Solvey Paths",
+  "theme_color": "#000000",
+  "background_color": "#000000",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

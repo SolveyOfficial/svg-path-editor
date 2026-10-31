@@ -4,9 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && node scripts/licenses.mjs",
     "watch": "ng build --watch --configuration development",
-    "build-prod": "ng build --configuration production --base-href=/svg-path-editor/",
+    "build-prod": "ng build --configuration production --base-href=/svg-path-editor/ && node scripts/licenses.mjs",
     "test": "ng test --watch=false",
     "lint": "ng lint"
   },
@@ -45,5 +45,8 @@
   },
   "overrides": {
     "minimatch": "^11.0.3"
+  },
+  "engines": {
+    "node": "^22.22.3 || >=24.15.0"
   }
 }

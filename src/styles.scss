@@ -18,11 +18,11 @@
 
 /* You can add global styles to this file, and also import other style files */
 html {
-    font-family: Roboto, Arial, "Helvetica Neue", sans-serif;
-    scrollbar-color: #565656 #393939;
+    font-family: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+    scrollbar-color: #3a3a44 #1c1c22;
     scrollbar-width: thin;
-    color:white;
-    background-color: #1e1e1e;
+    color:#d4d4d8;
+    background-color: #09090b;
     font-size: 12px;
 }
 html, body {
@@ -41,12 +41,12 @@ html, body {
     width: 6px;
 }
 ::-webkit-scrollbar-track {
-    background-color: #393939;
+    background-color: #1c1c22;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: #565656;
+    background-color: #3a3a44;
     border-radius: 3px;
-    border: 0px solid #393939;
+    border: 0px solid #1c1c22;
 }
 ::-webkit-scrollbar-button {
     width: 0;
@@ -61,11 +61,11 @@ html, body {
 /* app */
 input.app-input,
 textarea.app-input {
-    color:white;
+    color:#d4d4d8;
     background-color: rgba(255,255,255,0.145);
     border-style: solid;
     border-width: 0 0 1px 0;
-    border-color: #c8c8c8;
+    border-color: #9f9fa9;
     border-radius: 2px 2px 0 0;
     transition: border-width 100ms, padding-bottom 100ms;
 }
@@ -91,7 +91,7 @@ textarea.app-input:hover {
 input.app-input:focus,
 textarea.app-input:focus {
     outline: none;
-    border-color: #2196f3;
+    border-color: #c5b9f9;
 }
 
 /* app */
@@ -174,7 +174,7 @@ button.mat-mdc-icon-button.more-button {
 
     >label {
         position: absolute;
-        color:#c8c8c8;
+        color:#9f9fa9;
         font-size:8px;
         padding:4px 4px 4px 4px;
         top:0;
@@ -193,7 +193,7 @@ button.mat-mdc-icon-button.more-button {
         resize: vertical; 
     }
     >label.opaque {
-        background-color:rgba(69,69,69,0.9);
+        background-color:rgba(28,28,34,0.95);
         border-radius: 2px;
     }
     &.disabled {
@@ -203,13 +203,13 @@ button.mat-mdc-icon-button.more-button {
         border-color: transparent;
     }
     &:focus-within>label {
-        color: #2196f3;
+        color: #c5b9f9;
     }
     &.has-error>input, &.has-error>textarea {
-        border-color:#f44336;
+        border-color:#f87171;
     }
     &.has-error:focus-within>label {
-        color:#f44336;
+        color:#f87171;
     }
 }
 
@@ -221,7 +221,7 @@ button.mat-mdc-icon-button.more-button {
 
 /* ::deep */
 .dialog .mat-mdc-dialog-container {
-    --mat-dialog-container-color:  #252526 !important;
+    --mat-dialog-container-color:  #141416 !important;
 }
 .mat-mdc-menu-panel {
     max-width: 320px  !important;

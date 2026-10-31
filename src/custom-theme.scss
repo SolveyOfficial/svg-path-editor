@@ -14,10 +14,21 @@
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
 $svg-path-editor-primary: mat.m2-define-palette(mat.$m2-grey-palette, 800);
-$svg-path-editor-accent: mat.m2-define-palette(mat.$m2-blue-palette);
+// Solvey lavender accent
+$solvey-lavender: (
+  50: #f5f3fe, 100: #ebe7fd, 200: #dbd5f5, 300: #d1c8fb, 400: #cbc0fa,
+  500: #c5b9f9, 600: #b3a4f5, 700: #9d8cef, 800: #8a77e9, 900: #6a55de,
+  A100: #ffffff, A200: #dbd5f5, A400: #c5b9f9, A700: #b3a4f5,
+  contrast: (
+    50: #000, 100: #000, 200: #000, 300: #000, 400: #000,
+    500: #000, 600: #000, 700: #000, 800: #000, 900: #fff,
+    A100: #000, A200: #000, A400: #000, A700: #000,
+  )
+);
+$svg-path-editor-accent: mat.m2-define-palette($solvey-lavender);
 
 // The warn palette is optional (defaults to red).
-$svg-path-editor-warn: mat.m2-define-palette(mat.$m2-red-palette);
+$svg-path-editor-warn: mat.m2-define-palette(mat.$m2-red-palette, 300);
 
 // Create the theme object (a Sass map containing all of the palettes).
 $svg-path-editor-theme: mat.m2-define-dark-theme((
@@ -27,6 +38,7 @@ $svg-path-editor-theme: mat.m2-define-dark-theme((
     warn: $svg-path-editor-warn
   ),
   typography: mat.m2-define-typography-config(
+    $font-family: "'Inter Variable', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif",
     $body-2: mat.m2-define-typography-level($font-size: 12px),
     $button: mat.m2-define-typography-level($font-size: 14px, $font-weight: 500)
   ),

@@ -1,5 +1,5 @@
 :host {
-    background-color: #1e1e1e;
+    background-color: #09090b;
     user-select: none;
 }
 
@@ -13,12 +13,12 @@ path.filled {
 }
 
 path.hovered {
-    stroke: red;
+    stroke: #da66ff;
     fill: none;
 }
 
 path.dragged {
-    stroke: rgb(0, 174, 255);
+    stroke: #c5b9f9;
     fill: none;
 }
 
@@ -37,7 +37,7 @@ line.control {
 }
 
 line.hovered {
-    stroke: red;
+    stroke: #da66ff;
 }
 
 circle {
@@ -54,11 +54,11 @@ circle.target {
 }
 
 circle.hovered {
-    fill: red;
+    fill: #da66ff;
 }
 
 circle.dragged {
-    fill: rgb(0, 174, 255);
+    fill: #c5b9f9;
 }
 
 :host.preview {
@@ -75,7 +75,7 @@ circle.dragged {
 }
 
 :host.preview path.hovered {
-    stroke: red;
+    stroke: #da66ff;
     fill: none;
 }
 
@@ -115,11 +115,11 @@ circle.image-control {
 }
 
 .focused-image line.image-control {
-    stroke: rgb(0, 174, 255);
+    stroke: #c5b9f9;
 }
 
 .focused-image circle.image-control {
-    fill: rgb(0, 174, 255);
+    fill: #c5b9f9;
 }
 
 .image-control.horizontal {

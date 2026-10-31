@@ -1,6 +1,17 @@
-# SvgPathEditor
-Edit or create SVG paths in browser: https://yqnn.github.io/svg-path-editor/
-[![Image of Yaktocat](./doc/screenshot.png)](https://yqnn.github.io/svg-path-editor/)
+# Solvey SVG Path Editor
+
+Live demo: https://solveyofficial.github.io/svg-path-editor/
+
+Create and edit SVG paths visually. Paste a path, drag its points, add or
+convert commands, and copy the result.
+
+![Solvey SVG Path Editor](./doc/screenshot.png)
+
+## Private by design
+
+Everything runs in your browser. Paths and images you open are never uploaded,
+and the app loads no analytics, tracking or third-party resources: fonts and
+icons are served with the app itself.
 
 ## How to Use
 
@@ -44,30 +55,23 @@ Edit or create SVG paths in browser: https://yqnn.github.io/svg-path-editor/
 - Press **ctrl** + **shift** + **z** or **cmd** + **shift** + **z** to redo
 - Press **ctrl** while dragging to ignore `snap to grid` constraint
 
-## Library
+## Development
 
-The library that powers the app is now available as a standalone package: [`svg-path-editor-lib`](https://www.npmjs.com/package/svg-path-editor-lib).
+You need Node.js 22.22.3 or later (or 24.15 or later).
 
-## Running Locally
+```sh
+npm ci          # install dependencies
+npm start       # development server at http://localhost:4200
+npm run lint    # lint TypeScript and templates
+npm test        # unit tests (Vitest)
+npm run build   # production build in dist/svg-path-editor/browser
+```
 
-### With Node.js
+When the repository is public, every push to `main` is published to GitHub Pages.
 
-##### Requirements
-- [Node.js](https://nodejs.org/) v18.13 or higher.
+## Licence
 
-##### Dependencies
-Run `npm install` to retrieve all the dependencies of the project.
-
-##### Development server
-Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-##### Build
-Run `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-##### Running unit tests
-Run `npm test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Special Thanks
-Many thanks to our sponsors 🙇 !
-
-[@riovir](https://github.com/riovir), [@miniBill](https://github.com/miniBill), [@GitHub](https://github.com/GitHub), [@alexandernst](https://github.com/alexandernst), [@Filimoa](https://github.com/Filimoa), [@agrogers](https://github.com/agrogers), [@MilesTails01](https://github.com/MilesTails01), [@robetus](https://github.com/robetus), [@adcar](https://github.com/adcar), [@getsentry](https://github.com/getsentry), [@simplicitywebdesign](https://github.com/simplicitywebdesign) 😎, [@PassPilot](https://github.com/PassPilot), [@zeroin](https://github.com/zeroin), [@jholmes-dev](https://github.com/jholmes-dev), [@sh-csg](https://github.com/sh-csg), [@MarcoRudin](https://github.com/MarcoRudin), [@Oddpod](https://github.com/Oddpod), [@roboflow](https://github.com/roboflow), [@lasaldan](https://github.com/lasaldan), [@stevekerrick](https://github.com/stevekerrick), [@toth-istvan-zoltan](https://github.com/toth-istvan-zoltan), [@PBI-DataVizzle](https://github.com/PBI-DataVizzle), [@gucr](https://github.com/gucr), [@Guiorgy](https://github.com/Guiorgy), [@LeaVerou](https://github.com/LeaVerou), [@miham-aib](https://github.com/miham-aib), [@BarryCap](https://github.com/BarryCap), [@orangeman1066](https://github.com/orangeman1066), [@samzmann](https://github.com/samzmann), [@farin](https://github.com/farin)
+Apache License 2.0, see LICENSE and NOTICE. This is a modified version of
+SVG Path Editor by Yann Armelin. The licences of bundled third-party software
+and fonts are collected into `LICENSES.txt` in each build and linked from the
+app's footer.

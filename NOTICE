@@ -1,0 +1,8 @@
+Solvey SVG Path Editor
+Copyright 2026 Solvey
+
+This product is a modified version of SVG Path Editor,
+Copyright 2020 Yann Armelin, licensed under the Apache License, Version 2.0.
+Solvey changed the files in this repository in 2026: removed analytics and
+third-party font loading, updated the framework and tooling, and changed the
+branding, colours and fonts.
