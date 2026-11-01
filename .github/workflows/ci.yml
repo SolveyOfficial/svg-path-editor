@@ -34,6 +34,17 @@ jobs:
       - name: Build
         run: npm run build-prod
 
+      # solvey.in/tools/<repository>/ is forwarded to the tools/<repository>/
+      # folder of this site, so the same commit is built again for that path
+      - name: Build the copy for solvey.in/tools
+        run: |
+          npx ng build --configuration production --base-href="/tools/$REPOSITORY/" --output-path=dist/tools-copy
+          cp dist/svg-path-editor/browser/LICENSES.txt dist/tools-copy/browser/
+          mkdir -p dist/svg-path-editor/browser/tools
+          mv dist/tools-copy/browser "dist/svg-path-editor/browser/tools/$REPOSITORY"
+        env:
+          REPOSITORY: ${{ github.event.repository.name }}
+
       # Publishes to GitHub Pages once the repository is public
       - name: Upload site
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !github.event.repository.private
